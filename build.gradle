@@ -1,0 +1,4 @@
+allprojects {
+    group 'com.sequoiacode'
+    version '1.0-SNAPSHOT'
+}

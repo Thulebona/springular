@@ -1,0 +1,4 @@
+rootProject.name = 'springuler'
+include 'UI'
+include 'Sequoia_api'
+

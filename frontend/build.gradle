@@ -1,12 +1,8 @@
 plugins {
     id 'java'
-    id "com.moowork.node" version "1.2.0"
 }
 
-node {
-    version = '10.16.0'
-    npmVersion = '6.9.0'
-    download = true
+task buildUI(type: Exec) {
+  commandLine "npm.cmd", "run", "build"
 }
-
-jar.dependsOn 'npm_run_build'
+//jar.dependsOn 'buildUI'

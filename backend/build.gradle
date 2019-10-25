@@ -30,5 +30,5 @@ dependencies {
 
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.1.6.RELEASE'
 
-    implementation(project(':frontend'))
+//    implementation(project(':frontend'))
 }

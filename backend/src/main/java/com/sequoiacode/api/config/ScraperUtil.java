@@ -7,8 +7,10 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.support.ui.Select;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class ScraperUtil {
@@ -18,35 +20,43 @@ public class ScraperUtil {
     static {
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
-//        options.addArguments("headless");
+        options.addArguments("--ignore-certificate-errors");
         web = new ChromeDriver(options);
     }
+
+    private static Boolean isLoggedIn(){
+        return web.findElements(By.xpath("//ul/li/a[@title='Logout']")).size() > 0;
+    }
+
+
     public static void login(Credential credential, WASEnv env) {
         web.get(env.label);
-        WebElement userName = findElement(By.name("j_username"));
-        WebElement passWord = findElement(By.name("j_password"));
+        if(!isLoggedIn()) {
+            WebElement userName = findElement(By.name("j_username"));
+            WebElement passWord = findElement(By.name("j_password"));
 
-        userName.sendKeys(credential.getUsername());
-        passWord.sendKeys(credential.getPassword());
-        findElementWithClick(By.xpath("//input[@value='Log in']"));
-        findElementWithClick(By.xpath("//input[@value='OK']"));
+            userName.sendKeys(credential.getUsername());
+            passWord.sendKeys(credential.getPassword());
+            findElementWithClick(By.xpath("//input[@value='Log in']"));
+            findElementWithClick(By.xpath("//input[@value='OK']"));
+        }
     }
-    public static void getAppAndSecurity(Credential credential, WASEnv env) {
-            login(credential,env);
+    public static List getApps(Credential credential, WASEnv env) {
+        login(credential,env);
         switchFrame("navigation");
 
         Select dropdown = new Select(findElement(By.xpath("//select[@id='navFilterSelection']")));
         dropdown.selectByVisibleText("All tasks");
-        findElementWithClick(By.xpath("//*[@id='T0']/div[5]/a"));
-        findElementWithClick(By.xpath("//*[@id='N3']/div[1]/a"));
+        findElementWithClick(By.xpath("//a/span[text()='Applications']"));
+        findElementWithClick(By.xpath("//a/span[text()='Application Types']"));
         findElementWithClick(By.xpath("//a[@id='C0WebSphere enterprise applications']"));
 
         switchParentFrame();
         switchFrame("detail");
-
-        findElementWithClick(By.xpath("//*[@id=\"com.ibm.ws.console.appdeployment.ApplicationDeploymentCollectionForm\"]/table[3]/tbody[3]/tr[2]/td[2]/a"));
-        findElementWithClick(By.xpath("//*[@id=\"child_ApplicationDeployment.DetailProperties.category\"]/ul/li[6]/a"));
         System.out.println(web.getCurrentUrl());
+//        findElementWithClick(By.xpath("//*[@id=\"com.ibm.ws.console.appdeployment.ApplicationDeploymentCollectionForm\"]/table[3]/tbody[3]/tr[2]/td[2]/a"));
+//        findElementWithClick(By.xpath("//*[@id=\"child_ApplicationDeployment.DetailProperties.category\"]/ul/li[6]/a"));
+        return getTableValues();
     }
 
 
@@ -72,5 +82,18 @@ public class ScraperUtil {
     public static void findDropdownSelect(By by, String selectValue) {
         Select dropdown = new Select(findElement(by));
         dropdown.selectByVisibleText(selectValue);
+    }
+
+
+    public static List getTableValues() {
+        List<WebElement> rows = web.findElements(By.xpath("//table[@class='framing-table']/tbody[3]/tr[@class='table-row']"));
+        for (WebElement row : rows) {
+            System.out.println(row.getText());
+            WebElement key = row.findElement(By.xpath("/td[2]"));
+            System.out.println(key.getText());
+            WebElement val = row.findElement(By.xpath("./td[2]"));
+            System.out.println(val.getText());
+        }
+        return rows;
     }
 }

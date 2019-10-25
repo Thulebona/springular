@@ -1,8 +1,27 @@
-plugins {
-    id 'java'
+buildscript {
+  repositories {
+    mavenCentral()
+    maven { url 'https://plugins.gradle.org/m2/' }
+    maven { url "http://repo.sanlam.co.za/content/groups/public"}
+    maven { url "http://deployables.sanlam.co.za/repository/sentrix-group" }
+  }
+  dependencies {
+    classpath "com.moowork.gradle:gradle-node-plugin:1.3.1"
+  }
+}
+apply plugin: "java"
+apply plugin: "com.moowork.node"
+
+node {
+  version = '10.16.0'
+  download = true
 }
 
-task buildUI(type: Exec) {
-  commandLine "npm.cmd", "run", "build"
+task buildUI(type: NpmTask) {
+  group = 'application'
+  description = 'Builds and watches the client side assets for rebuilding'
+  args = ['run', 'buildWatch']
 }
-//jar.dependsOn 'buildUI'
+
+jar.dependsOn(buildUI)
+

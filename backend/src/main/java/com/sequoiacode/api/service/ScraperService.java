@@ -5,10 +5,13 @@ import com.sequoiacode.api.config.WASEnv;
 import com.sequoiacode.api.domain.Credential;
 import org.springframework.stereotype.Service;
 
-@Service
-public class LoginService {
+import java.util.List;
 
-    public void login(Credential credential, WASEnv env){
-        ScraperUtil.getAppAndSecurity(credential,env);
+@Service
+public class ScraperService {
+
+    public List getApps(Credential credential, WASEnv env){
+        return ScraperUtil.getApps(credential,env);
     }
+
 }

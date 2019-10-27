@@ -1,48 +1,63 @@
 package com.sequoiacode.api.config;
 
-import com.sequoiacode.api.domain.Credential;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.support.ui.Select;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
+import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class ScraperUtil {
+@Component
+public class ScraperUtil implements Serializable {
 
-    private static WebDriver web;
+    private static final long serialVersionUID = -2550185165626007488L;
 
-    static {
-        WebDriverManager.chromedriver().setup();
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--ignore-certificate-errors");
-        web = new ChromeDriver(options);
+    private static WebDriver web = null;
+    private static String was_location;
+    private static Map<String, WebDriver> drivers = new HashMap<>();
+
+    @Value("${was.env.url}")
+    public void setWasLocation(String url) {
+        was_location = url;
     }
 
-    private static Boolean isLoggedIn(){
+    private static void getDrive(String userId) {
+        if (web == null) {
+            WebDriverManager.chromedriver().setup();
+            ChromeOptions options = new ChromeOptions();
+            options.addArguments("--ignore-certificate-errors");
+            web = new ChromeDriver(options);
+        }
+        drivers.get(userId);
+    }
+
+    private static Boolean isLoggedInOnWAS() {
         return web.findElements(By.xpath("//ul/li/a[@title='Logout']")).size() > 0;
     }
 
+    public static WebDriver login(UserDetails user) {
+        getDrive(user.getUsername());
+        if (!isLoggedInOnWAS()) {
+            web.get(was_location);
+            findElement(By.name("j_username")).sendKeys(user.getUsername());
+            findElement(By.name("j_password")).sendKeys(user.getPassword());
 
-    public static void login(Credential credential, WASEnv env) {
-        web.get(env.label);
-        if(!isLoggedIn()) {
-            WebElement userName = findElement(By.name("j_username"));
-            WebElement passWord = findElement(By.name("j_password"));
-
-            userName.sendKeys(credential.getUsername());
-            passWord.sendKeys(credential.getPassword());
             findElementWithClick(By.xpath("//input[@value='Log in']"));
             findElementWithClick(By.xpath("//input[@value='OK']"));
         }
+        return web;
     }
-    public static List getApps(Credential credential, WASEnv env) {
-        login(credential,env);
+
+    public static List getApps() {
         switchFrame("navigation");
 
         Select dropdown = new Select(findElement(By.xpath("//select[@id='navFilterSelection']")));
@@ -53,9 +68,6 @@ public class ScraperUtil {
 
         switchParentFrame();
         switchFrame("detail");
-        System.out.println(web.getCurrentUrl());
-//        findElementWithClick(By.xpath("//*[@id=\"com.ibm.ws.console.appdeployment.ApplicationDeploymentCollectionForm\"]/table[3]/tbody[3]/tr[2]/td[2]/a"));
-//        findElementWithClick(By.xpath("//*[@id=\"child_ApplicationDeployment.DetailProperties.category\"]/ul/li[6]/a"));
         return getTableValues();
     }
 
@@ -64,8 +76,12 @@ public class ScraperUtil {
         return web.findElement(by);
     }
 
+    public static List<WebElement> findElements(By by) {
+        return web.findElements(by);
+    }
+
     public static void findElementWithClick(By by) {
-        List<WebElement> element = web.findElements(by);
+        List<WebElement> element = findElements(by);
         if (element.size() > 0) {
             element.get(0).click();
         }
@@ -84,16 +100,16 @@ public class ScraperUtil {
         dropdown.selectByVisibleText(selectValue);
     }
 
-
     public static List getTableValues() {
-        List<WebElement> rows = web.findElements(By.xpath("//table[@class='framing-table']/tbody[3]/tr[@class='table-row']"));
+        List<WebElement> rows = findElements(By.xpath("//table[@class='framing-table']/tbody[3]/tr[@class='table-row']"));
         for (WebElement row : rows) {
             System.out.println(row.getText());
             WebElement key = row.findElement(By.xpath("/td[2]"));
-            System.out.println(key.getText());
-            WebElement val = row.findElement(By.xpath("./td[2]"));
-            System.out.println(val.getText());
         }
         return rows;
+    }
+
+    public static String getCookies() {
+        return web.manage().getCookies().toString();
     }
 }

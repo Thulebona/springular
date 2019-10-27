@@ -31,6 +31,7 @@ public class JwtUserRequestService implements UserDetailsService {
         if (!(user != null && !encoder.matches(jwtUser.getPassword(), user.getPassword()))) {
             jwtUser = jwtUser.toBuilder().password(encoder.encode(jwtUser.getPassword())).build();
         }
+
         return repository.save(jwtUser);
     }
 }

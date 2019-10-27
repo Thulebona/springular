@@ -8,17 +8,16 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 
-import java.io.IOException;
-
 @SpringBootApplication(exclude = SecurityAutoConfiguration.class)
 public class App {
-    public static void main(String[] args) throws IOException {
+
+    public static void main(String[] args) {
         SpringApplication.run(App.class, args);
     }
 
     @Bean
     public CommandLineRunner setupDefaultUser(JwtUserRequestService service) {
-        return args -> service.saveOrUpdate(new JwtUser("wasuser","1"));
+        return args -> service.saveOrUpdate(new JwtUser("wasuser","wasuser"));
     }
 
 }

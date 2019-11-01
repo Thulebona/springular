@@ -17,10 +17,10 @@ public class AuthenticationService {
     private AuthenticationManager authManager;
     private UsernamePasswordAuthenticationToken authToken;
 
-    public JwtToken authenticate(JwtUser jwtUser) {
+    public JwtToken authenticate(JwtUser jwtUser,String agent) {
         authToken = new UsernamePasswordAuthenticationToken(jwtUser.getUsername(), jwtUser.getPassword(), jwtUser.getAuthorities());
         authManager.authenticate(authToken);
-        String token = jwtTokenUtil.generateToken(jwtUser);
+        String token = jwtTokenUtil.generateToken(jwtUser,agent);
         return new JwtToken(token);
     }
 

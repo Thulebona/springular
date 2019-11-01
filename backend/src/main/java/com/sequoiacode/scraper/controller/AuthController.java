@@ -6,10 +6,7 @@ import com.sequoiacode.scraper.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/api/auth", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -19,8 +16,9 @@ public class AuthController {
     private AuthenticationService authService;
 
     @PostMapping(value = "/login")
-    public ResponseEntity<?> login(@RequestBody JwtUser jwtUser) {
-        JwtToken token = authService.authenticate(jwtUser);
+    public ResponseEntity<?> login(@RequestBody JwtUser jwtUser, @RequestHeader(value = "User-Agent") String userAgent) {
+//        request.getHeader("User-Agent")
+        JwtToken token = authService.authenticate(jwtUser, userAgent);
         return ResponseEntity.ok(token);
     }
 

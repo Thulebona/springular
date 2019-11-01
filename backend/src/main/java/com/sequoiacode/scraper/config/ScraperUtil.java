@@ -68,21 +68,19 @@ public class ScraperUtil implements Serializable {
         findElementWithClick(By.xpath("//div/a[@aria-expanded='false']/span[text()='Applications']"));
         findElementWithClick(By.xpath("//div/a[@aria-expanded='false']/span[text()='Application Types']"));
         findElementWithClick(By.xpath("//a[@id='C0WebSphere enterprise applications']"));
-
         switchFrame("detail");
         return getTableValues();
     }
 
-
-    public WebElement findElement(By by) {
+    private WebElement findElement(By by) {
         return web.findElement(by);
     }
 
-    public List<WebElement> findElements(By by) {
+    private List<WebElement> findElements(By by) {
         return web.findElements(by);
     }
 
-    public void findElementWithClick(By by) {
+    private void findElementWithClick(By by) {
         List<WebElement> element = findElements(by);
         if (element.size() > 0) {
             element.get(0).click();
@@ -90,16 +88,12 @@ public class ScraperUtil implements Serializable {
         }
     }
 
-    public void switchFrame(String frameName) {
+    private void switchFrame(String frameName) {
         web.switchTo().parentFrame();
         web.switchTo().frame(frameName);
     }
 
-    public void switchParentFrame() {
-        web.switchTo().parentFrame();
-    }
-
-    public void findDropdownSelect(By by, String selectValue) {
+    private void findDropdownSelect(By by, String selectValue) {
         Select dropdown = new Select(findElement(by));
         dropdown.selectByVisibleText(selectValue);
     }
@@ -114,14 +108,7 @@ public class ScraperUtil implements Serializable {
             if(appName !=null && status !=null) {
                 wasApps.add(new WasApp(appName, status));
             }
-            System.out.println(appName);
-            System.out.println(status);
-
         }
         return new ArrayList<>(wasApps);
-    }
-
-    public String getCookies() {
-        return web.manage().getCookies().toString();
     }
 }

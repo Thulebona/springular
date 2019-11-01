@@ -1,4 +1,4 @@
 allprojects {
-    group 'com.sequoiacode'
+    group 'com.sequoiacode.scraper'
     version '1.0-SNAPSHOT'
 }

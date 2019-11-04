@@ -9,15 +9,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value = "/api/auth", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "auth", produces = MediaType.APPLICATION_JSON_VALUE)
 public class AuthController {
 
     @Autowired
     private AuthenticationService authService;
 
-    @PostMapping(value = "/login")
+    @PostMapping(value = "login")
     public ResponseEntity<?> login(@RequestBody JwtUser jwtUser, @RequestHeader(value = "User-Agent") String userAgent) {
-//        request.getHeader("User-Agent")
         JwtToken token = authService.authenticate(jwtUser, userAgent);
         return ResponseEntity.ok(token);
     }

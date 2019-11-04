@@ -1,5 +1,6 @@
 package com.sequoiacode.scraper.config;
 
+import com.sequoiacode.scraper.domain.AppSecurity;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -34,6 +35,7 @@ public class ScraperUtil implements Serializable {
         if (drivers.get(userId) == null) {
             WebDriverManager.chromedriver().setup();
             ChromeOptions options = new ChromeOptions();
+//            options.addArguments("--ignore-certificate-errors");
             options.addArguments("--ignore-certificate-errors","--headless");
             drivers.put(userId, new ChromeDriver(options));
         }
@@ -64,7 +66,7 @@ public class ScraperUtil implements Serializable {
 
     public List<WasApp> getAppsInstalled() {
         switchFrame("navigation");
-        findDropdownSelect(By.xpath("//select[@id='navFilterSelection']"),"All tasks");
+        findDropdownSelect(By.xpath("//select[@id='navFilterSelection']"), "All tasks");
         findElementWithClick(By.xpath("//div/a[@aria-expanded='false']/span[text()='Applications']"));
         findElementWithClick(By.xpath("//div/a[@aria-expanded='false']/span[text()='Application Types']"));
         findElementWithClick(By.xpath("//a[@id='C0WebSphere enterprise applications']"));
@@ -99,16 +101,39 @@ public class ScraperUtil implements Serializable {
     }
 
     private List<WasApp> getTableValues() {
-        String xpath  = "//table[@class='framing-table']/tbody[3]/tr[@class='table-row']";
-        List<WebElement> rows = findElements(By.xpath(xpath));
-        Set<WasApp> wasApps =  new HashSet<>();
-        for (WebElement row : rows) {
-            String appName = row.findElement(By.xpath(xpath +"/td[2]")).getText();
-            String status = row.findElement(By.xpath(xpath +"/td[3]/a/img")).getAttribute("title");
-            if(appName !=null && status !=null) {
+        String xpath = "//table[@class='framing-table']/tbody[3]";
+        List<WebElement> rows = findElements(By.xpath(xpath + "/tr[@class='table-row']"));
+        Set<WasApp> wasApps = new HashSet<>();
+        for (int i = 2; i < rows.size() + 2; i++) {
+            String appName = findElement(By.xpath(xpath + "/tr[" + i + "]/td[2]")).getText();
+            String status = findElement(By.xpath(xpath + "/tr[" + i + "]/td[3]/a/img")).getAttribute("title");
+            if (appName != null && status != null) {
                 wasApps.add(new WasApp(appName, status));
             }
         }
         return new ArrayList<>(wasApps);
+    }
+
+    public List<AppSecurity> getAppSecurity(String appName) {
+        String path = String.format("//table[@class='framing-table']/tbody[3]/tr[@class='table-row']/td[2]/a[contains(text(), '%s')]", appName);
+        List<WebElement> app = findElements(By.xpath(path));
+        Set<AppSecurity> appSecurities = new HashSet<>();
+        if (app.size() > 0) {
+            app.get(0).click();
+            String securityRolePath = "//*[@id='MapRolesToUsersForm']/table/tbody/tr[1]/td/fieldset/table/tbody";
+            String securityPath = "//div[@class='main-category-container']/ul/li[@title='Security role to user/group mapping']";
+            findElementWithClick(By.xpath(securityPath));
+            final int roleSize = findElements(By.xpath(securityRolePath + "/tr[@class='table-row']")).size();
+            for (int i = 2; i < roleSize + 2; i++) {
+                String role = findElement(By.xpath(securityRolePath + "/tr[" + i + "]/td[1]")).getText();
+                String subject = findElement(By.xpath(securityRolePath + "/tr[" + i + "]/td[2]")).getText();
+                String mappedUser = findElement(By.xpath(securityRolePath + "/tr[" + i + "]/td[3]")).getText();
+                String group = findElement(By.xpath(securityRolePath + "/tr[" + i + "]/td[4]")).getText();
+
+                appSecurities.add(new AppSecurity(role, subject, mappedUser, group));
+            }
+        }
+
+        return new ArrayList<>(appSecurities);
     }
 }

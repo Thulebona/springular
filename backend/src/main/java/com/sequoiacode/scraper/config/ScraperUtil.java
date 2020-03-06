@@ -64,7 +64,7 @@ public class ScraperUtil implements Serializable {
         return web;
     }
 
-    public List<WasApp> getAppsInstalled() {
+    public List<WasApp> getAppsInstalled() throws InterruptedException {
         switchFrame("navigation");
         findDropdownSelect(By.xpath("//select[@id='navFilterSelection']"), "All tasks");
         findElementWithClick(By.xpath("//div/a[@aria-expanded='false']/span[text()='Applications']"));
@@ -100,8 +100,9 @@ public class ScraperUtil implements Serializable {
         dropdown.selectByVisibleText(selectValue);
     }
 
-    private List<WasApp> getTableValues() {
+    private List<WasApp> getTableValues() throws InterruptedException {
         String xpath = "//table[@class='framing-table']/tbody[3]";
+        Thread.sleep(1);
         List<WebElement> rows = findElements(By.xpath(xpath + "/tr[@class='table-row']"));
         Set<WasApp> wasApps = new HashSet<>();
         for (int i = 2; i < rows.size() + 2; i++) {

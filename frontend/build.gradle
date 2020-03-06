@@ -20,7 +20,7 @@ node {
 task buildUI(type: NpmTask) {
   group = 'application'
   description = 'Builds and watches the client side assets for rebuilding'
-  args = ['run', 'buildWatch']
+  args = ['run', 'start']
 }
 
 jar.dependsOn(buildUI)

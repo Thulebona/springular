@@ -20,7 +20,7 @@ public class ScraperController {
     private ScrapperService scrapperService;
 
     @GetMapping(value = "apps")
-    public List<WasApp> getAppsOnWas(){
+    public List<WasApp> getAppsOnWas() throws InterruptedException {
         return scrapperService.getAppsInstalled();
     }
 

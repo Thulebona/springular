@@ -14,7 +14,7 @@ public class ScrapperService {
     @Autowired
     private ScraperUtil scraperUtil;
 
-    public List<WasApp> getAppsInstalled() {
+    public List<WasApp> getAppsInstalled() throws InterruptedException {
         return scraperUtil.getAppsInstalled();
     }
 
